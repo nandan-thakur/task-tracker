@@ -6,7 +6,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Task Management', () => {
   test('Edit Existing Task', async ({ page }) => {
     // 1. Create a task if none exists
-    await page.goto('http://localhost:3001');
+    await page.goto('http://localhost:3001/task-tracker/');
     await page.getByRole('button', { name: 'New Task' }).click();
     await page.getByRole('textbox', { name: 'e.g., Review Q3 Marketing Plan' }).fill('Original task title');
     await page.getByRole('combobox').selectOption(['medium']);

@@ -6,7 +6,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Task Management', () => {
   test('Create New Task', async ({ page }) => {
     // 1. Navigate to the application
-    await page.goto('http://localhost:3001');
+    await page.goto('http://localhost:3001/task-tracker/');
 
     // 2. Click 'New Task' button to open form
     await page.getByRole('button', { name: 'New Task' }).click();

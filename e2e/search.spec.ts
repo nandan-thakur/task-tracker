@@ -6,7 +6,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Filtering and Search', () => {
   test('Search Functionality', async ({ page }) => {
     // 1. Create tasks with different titles and descriptions
-    await page.goto('http://localhost:3001');
+    await page.goto('http://localhost:3001/task-tracker/');
     
     // Create first task
     await page.getByRole('button', { name: 'New Task' }).click();

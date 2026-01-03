@@ -6,7 +6,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Form Validation', () => {
   test('Required Field Validation', async ({ page }) => {
     // 1. Click 'New Task' to open form
-    await page.goto('http://localhost:3001');
+    await page.goto('http://localhost:3001/task-tracker/');
     await page.getByRole('button', { name: 'New Task' }).click();
 
     // 2. Leave title field empty

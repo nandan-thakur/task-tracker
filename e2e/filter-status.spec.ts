@@ -6,7 +6,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Filtering and Search', () => {
   test('Filter by Status', async ({ page }) => {
     // 1. Create multiple tasks with different completion states
-    await page.goto('http://localhost:3001');
+    await page.goto('http://localhost:3001/task-tracker/');
     
     // Create first active task
     await page.getByRole('button', { name: 'New Task' }).click();

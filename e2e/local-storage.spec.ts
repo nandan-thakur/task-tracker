@@ -6,7 +6,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Data Persistence', () => {
   test('Local Storage Persistence', async ({ page }) => {
     // 1. Create multiple tasks
-    await page.goto('http://localhost:3001');
+    await page.goto('http://localhost:3001/task-tracker/');
     
     // Create first task
     await page.getByRole('button', { name: 'New Task' }).click();
@@ -23,7 +23,7 @@ test.describe('Data Persistence', () => {
     await page.getByRole('button', { name: 'Create Task' }).click();
 
     // 2. Refresh the browser page
-    await page.goto('http://localhost:3001');
+    await page.goto('http://localhost:3001/task-tracker/');
 
     // 3. Verify all tasks are preserved
     await expect(page.getByRole('heading', { name: 'Persisted task 1' })).toBeVisible();
@@ -36,7 +36,7 @@ test.describe('Data Persistence', () => {
     await page.getByRole('button', { name: 'Save Changes' }).click();
 
     // 5. Refresh page
-    await page.goto('http://localhost:3001');
+    await page.goto('http://localhost:3001/task-tracker/');
 
     // 6. Verify changes persist
     await expect(page.getByRole('heading', { name: 'Updated persisted task 1' })).toBeVisible();
@@ -50,7 +50,7 @@ test.describe('Data Persistence', () => {
     });
 
     // 8. Refresh page
-    await page.goto('http://localhost:3001');
+    await page.goto('http://localhost:3001/task-tracker/');
 
     // 9. Verify deletion is permanent
     await expect(page.getByRole('heading', { name: 'Updated persisted task 1' })).toBeVisible();
