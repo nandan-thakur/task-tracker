@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit2, CheckCircle, XCircle, Save, X, Search, LayoutList, Calendar } from 'lucide-react';
+import { Plus, Trash2, Edit2, CheckCircle, XCircle, Save, X, Search, LayoutList, Calendar, LogOut, Lock, User, AlertCircle } from 'lucide-react';
 
 // --- Components ---
 
@@ -18,6 +18,7 @@ const Button = ({ onClick, children, variant = "primary", className = "", type =
     primary: "bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500",
     secondary: "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-indigo-500",
     danger: "bg-red-50 text-red-600 hover:bg-red-100 focus:ring-red-500",
+    dangerSolid: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
     ghost: "text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:ring-gray-500",
     success: "bg-green-50 text-green-700 hover:bg-green-100 focus:ring-green-500"
   };
@@ -34,11 +35,131 @@ const Button = ({ onClick, children, variant = "primary", className = "", type =
   );
 };
 
+// Custom Dialog Component (Replaces generic alert/confirm)
+const CustomDialog = ({ isOpen, title, message, type, onConfirm, onCancel }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="p-6">
+          <div className="flex items-center gap-3 mb-4">
+            {type === 'danger' ? (
+              <div className="bg-red-100 p-2 rounded-full">
+                <AlertCircle className="h-6 w-6 text-red-600" />
+              </div>
+            ) : (
+              <div className="bg-indigo-100 p-2 rounded-full">
+                <AlertCircle className="h-6 w-6 text-indigo-600" />
+              </div>
+            )}
+            <h3 className="text-lg font-bold text-gray-900">{title}</h3>
+          </div>
+          <p className="text-gray-600 mb-6">{message}</p>
+          <div className="flex justify-end gap-3">
+            {type === 'confirm' || type === 'danger' ? (
+              <>
+                <Button variant="secondary" onClick={onCancel}>Cancel</Button>
+                <Button 
+                  variant={type === 'danger' ? 'dangerSolid' : 'primary'} 
+                  onClick={onConfirm}
+                >
+                  {type === 'danger' ? 'Delete' : 'Confirm'}
+                </Button>
+              </>
+            ) : (
+              <Button variant="primary" onClick={onConfirm}>OK</Button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Login Form Component
+const LoginForm = ({ onLogin, error }) => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onLogin(username, password);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="max-w-md w-full">
+        <div className="text-center mb-8">
+          <div className="bg-indigo-600 p-3 rounded-xl inline-flex mb-4">
+            <LayoutList className="h-8 w-8 text-white" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900">Welcome to TaskFlow</h1>
+          <p className="text-gray-500 mt-2">Please sign in to continue</p>
+        </div>
+
+        <Card className="p-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <User className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="pl-10 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4 border"
+                  placeholder="admin"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pl-10 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4 border"
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+            </div>
+
+            <Button type="submit" className="w-full py-3">
+              Sign In
+            </Button>
+            
+            <div className="text-center text-xs text-gray-400 mt-4">
+              Hint: Use <strong>admin</strong> / <strong>password</strong>
+            </div>
+          </form>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
 // Main App Component
 export default function App() {
-  // State
+  // --- Auth State ---
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('taskflow_auth') === 'true';
+    }
+    return false;
+  });
+
+  // --- Task State ---
   const [tasks, setTasks] = useState(() => {
-    // Load from local storage on initial render
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('crud_tasks_app_v1');
       return saved ? JSON.parse(saved) : [];
@@ -46,13 +167,23 @@ export default function App() {
     return [];
   });
 
+  // --- UI State ---
   const [view, setView] = useState('list'); // 'list' or 'form'
   const [isEditing, setIsEditing] = useState(false);
   const [currentTask, setCurrentTask] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('all'); // 'all', 'active', 'completed'
+  
+  // --- Dialog State ---
+  const [dialog, setDialog] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'alert', // 'alert' | 'confirm' | 'danger'
+    onConfirm: () => {},
+  });
 
-  // Form State
+  // --- Form State ---
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -60,12 +191,62 @@ export default function App() {
     dueDate: ''
   });
 
-  // Save to local storage whenever tasks change
+  // --- Effects ---
   useEffect(() => {
     localStorage.setItem('crud_tasks_app_v1', JSON.stringify(tasks));
   }, [tasks]);
 
-  // Handlers
+  useEffect(() => {
+    localStorage.setItem('taskflow_auth', isAuthenticated);
+  }, [isAuthenticated]);
+
+  // --- Dialog Helpers ---
+  const closeDialog = () => {
+    setDialog(prev => ({ ...prev, isOpen: false }));
+  };
+
+  const showAlert = (title, message) => {
+    setDialog({
+      isOpen: true,
+      title,
+      message,
+      type: 'alert',
+      onConfirm: closeDialog
+    });
+  };
+
+  const showConfirm = (title, message, onConfirmAction, isDanger = false) => {
+    setDialog({
+      isOpen: true,
+      title,
+      message,
+      type: isDanger ? 'danger' : 'confirm',
+      onConfirm: () => {
+        onConfirmAction();
+        closeDialog();
+      }
+    });
+  };
+
+  // --- Auth Handlers ---
+  const handleLogin = (username, password) => {
+    // Hardcoded credentials
+    if (username === 'admin' && password === 'password') {
+      setIsAuthenticated(true);
+    } else {
+      showAlert('Login Failed', 'Invalid username or password. Please try again.');
+    }
+  };
+
+  const handleLogout = () => {
+    showConfirm('Sign Out', 'Are you sure you want to sign out?', () => {
+      setIsAuthenticated(false);
+      setView('list');
+      setSearchTerm('');
+    });
+  };
+
+  // --- Task Handlers ---
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -128,9 +309,14 @@ export default function App() {
   };
 
   const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this task?')) {
-      setTasks(prev => prev.filter(t => t.id !== id));
-    }
+    showConfirm(
+      'Delete Task', 
+      'Are you sure you want to delete this task? This action cannot be undone.', 
+      () => {
+        setTasks(prev => prev.filter(t => t.id !== id));
+      },
+      true // isDanger
+    );
   };
 
   const toggleComplete = (id) => {
@@ -139,7 +325,7 @@ export default function App() {
     ));
   };
 
-  // Derived State
+  // --- Render Helpers ---
   const filteredTasks = tasks.filter(task => {
     const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           task.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -158,7 +344,6 @@ export default function App() {
     pending: tasks.filter(t => !t.completed).length
   };
 
-  // Helper to format date
   const formatDate = (dateString) => {
     if (!dateString) return '';
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -166,7 +351,6 @@ export default function App() {
     });
   };
 
-  // Priority Badge Color
   const getPriorityColor = (p) => {
     switch(p) {
       case 'high': return 'bg-red-100 text-red-700';
@@ -176,6 +360,26 @@ export default function App() {
     }
   };
 
+  // --- Main Render ---
+  
+  // 1. Show Login if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <>
+        <LoginForm onLogin={handleLogin} />
+        <CustomDialog 
+          isOpen={dialog.isOpen} 
+          title={dialog.title} 
+          message={dialog.message} 
+          type={dialog.type} 
+          onConfirm={dialog.onConfirm} 
+          onCancel={closeDialog}
+        />
+      </>
+    );
+  }
+
+  // 2. Show App if authenticated
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
       {/* Navbar */}
@@ -186,18 +390,22 @@ export default function App() {
               <div className="bg-indigo-600 p-2 rounded-lg">
                 <LayoutList className="h-6 w-6 text-white" />
               </div>
-              <h1 className="text-xl font-bold text-gray-900">TaskFlow</h1>
+              <h1 className="text-xl font-bold text-gray-900 hidden xs:block">TaskFlow</h1>
             </div>
             <div className="flex items-center gap-4">
               <div className="hidden md:flex text-sm text-gray-500 gap-4">
                 <span>Total: <span className="font-semibold text-gray-900">{stats.total}</span></span>
                 <span>Done: <span className="font-semibold text-green-600">{stats.completed}</span></span>
               </div>
+              <div className="h-6 w-px bg-gray-200 hidden md:block"></div>
               {view === 'list' && (
                 <Button onClick={handleCreateClick} className="shadow-sm">
                   <Plus className="h-4 w-4 mr-2" /> New Task
                 </Button>
               )}
+              <Button variant="ghost" onClick={handleLogout} className="text-gray-500">
+                <LogOut className="h-5 w-5" />
+              </Button>
             </div>
           </div>
         </div>
@@ -207,7 +415,7 @@ export default function App() {
         
         {view === 'form' ? (
           /* --- Form View --- */
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300">
             <div className="mb-6 flex items-center justify-between">
               <h2 className="text-2xl font-bold text-gray-900">
                 {isEditing ? 'Edit Task' : 'Create New Task'}
@@ -283,7 +491,7 @@ export default function App() {
 
         ) : (
           /* --- List View --- */
-          <div className="space-y-6">
+          <div className="space-y-6 animate-in fade-in duration-300">
             
             {/* Filters & Search */}
             <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-200">
@@ -406,6 +614,16 @@ export default function App() {
           </div>
         )}
       </main>
+
+      {/* Global Dialog Component */}
+      <CustomDialog 
+        isOpen={dialog.isOpen} 
+        title={dialog.title} 
+        message={dialog.message} 
+        type={dialog.type} 
+        onConfirm={dialog.onConfirm} 
+        onCancel={closeDialog}
+      />
     </div>
   );
 }
