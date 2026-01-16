@@ -58,12 +58,22 @@ A sleek, modern task management application built with React, Vite, and Tailwind
    npm run dev
    ```
 
-4. **Open your browser** and navigate to `http://localhost:5173`
+4. **Open your browser** and navigate to `http://localhost:3001/task-tracker/`
 
 ## 🏗️ Project Structure
 
 ```
 task-tracker/
+├── .github/
+│   ├── workflows/           # CI/CD workflows
+│   │   ├── copilot-setup-steps.yml
+│   │   └── deploy.yml
+│   └── agents/              # Playwright agents
+│       ├── playwright-test-generator.agent.md
+│       ├── playwright-test-healer.agent.md
+│       └── playwright-test-planner.agent.md
+├── .vscode/                 # VS Code configuration
+│   └── mcp.json             # Model Context Protocol configuration
 ├── src/
 │   ├── App.jsx              # Main application component
 │   ├── main.jsx             # React entry point
@@ -73,15 +83,24 @@ task-tracker/
 ├── public/
 │   └── vite.svg             # Vite logo
 ├── e2e/                     # End-to-end tests
-│   ├── create-task.spec.ts
-│   ├── edit-task.spec.ts
-│   ├── delete-task.spec.ts
-│   └── ...
+│   ├── seed.spec.ts         # Seed file for test setup
+│   ├── authentication/      # Authentication tests
+│   │   ├── sign-in.spec.ts
+│   │   └── sign-out.spec.ts
+│   ├── task-filtering/      # Task filtering tests
+│   │   └── filter-tasks.spec.ts
+│   └── task-management/     # Task management tests
+│       ├── complete-task.spec.ts
+│       ├── create-task.spec.ts
+│       ├── delete-task.spec.ts
+│       └── edit-task.spec.ts
 ├── specs/                   # Test specifications
-├── .github/workflows/       # CI/CD workflows
+│   ├── README.md            # Specs documentation
+│   └── test.plan.md         # Test plan
 ├── package.json             # Project dependencies
 ├── vite.config.js           # Vite configuration
 ├── eslint.config.js         # ESLint configuration
+├── playwright.config.js     # Playwright configuration
 └── README.md                # This file
 ```
 
@@ -134,6 +153,14 @@ npx playwright show-report
 - ✅ Search and filter functionality
 - ✅ Local storage persistence
 - ✅ Form validation and required fields
+
+### Writing Tests with Playwright Agents
+For detailed guidance on writing test cases using Playwright Agents, refer to the official documentation:
+- [Playwright Test Agents Documentation](https://playwright.dev/docs/test-agents)
+
+### Tutorial Video
+To learn how to set up and use Playwright Agents, watch this tutorial:
+- [Playwright Agents Setup and Usage Tutorial](https://www.youtube.com/watch?v=HQ-XpZPDDdk)
 
 ## 🚀 Deployment
 
